@@ -1,115 +1,114 @@
 #include <iostream>
-#include <vector>
-#include <random>
 #include <algorithm>
+#include <vector>
+#include <ctime>
 using namespace std;
 
-#include "graph.h"
+struct node {
+	int nodeNumber; // 0,1,2,3, ... .. .. . n-1
+	int btnCen; // betweenness centrality (TODO)
+	vector<int> links; // connected nodes
+};
+
+// private variables
+int total = 10; // total number of nodes
+node *allNodes = new node[total]; // all the nodes in the graph
+vector<int> diameterPath , radiusPath; // paths for diameter and radius
+int radius , diameter; // length of radius and diameter
+
+vector< vector<int> > possiblePaths; // for finding shortest path
+
+void shortestPathProcess(vector<int>,int); // used for shortestPathBetween()
+vector< vector<int> > shortestPathBetween(int,int); // used in parseGraph()
+vector<int> parseShortestPaths(int,int); // used in parseGraph for betweenness centrality
+void parseGraph(); // for diameter , radius
 
 
-double randomnumber()
-{
-	//generates random number between [0,1]
-	std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dis(0, 1);
-    double uniformOn01 = dis(gen);
-	return dis(gen);
+int main() {
+	for(int i=0 ; i<total ; i++) {
+		allNodes[i].nodeNumber = i;
+		allNodes[i].btnCen = 0;
+	}
+	// generating a graph with 10 nodes
+	allNodes[0].links.push_back(1);
+	allNodes[0].links.push_back(4);
+	allNodes[0].links.push_back(9);
+
+	allNodes[1].links.push_back(0);
+	allNodes[1].links.push_back(2);
+	allNodes[1].links.push_back(8);
+
+	allNodes[2].links.push_back(1);
+	allNodes[2].links.push_back(3);
+	allNodes[2].links.push_back(4);
+	allNodes[2].links.push_back(5);
+	allNodes[2].links.push_back(7);
+	allNodes[2].links.push_back(8);
+
+	allNodes[3].links.push_back(2);
+	allNodes[3].links.push_back(4);
+	allNodes[3].links.push_back(5);
+
+	allNodes[4].links.push_back(0);
+	allNodes[4].links.push_back(2);
+	allNodes[4].links.push_back(3);
+	allNodes[4].links.push_back(5);
+	allNodes[4].links.push_back(6);
+	allNodes[4].links.push_back(9);
+
+	allNodes[5].links.push_back(2);
+	allNodes[5].links.push_back(3);
+	allNodes[5].links.push_back(4);
+	allNodes[5].links.push_back(6);
+	allNodes[5].links.push_back(7);
+
+	allNodes[6].links.push_back(4);
+	allNodes[6].links.push_back(5);
+
+	allNodes[7].links.push_back(2);
+	allNodes[7].links.push_back(5);
+
+	allNodes[8].links.push_back(1);
+	allNodes[8].links.push_back(2);
+
+	allNodes[9].links.push_back(0);
+	allNodes[9].links.push_back(4);
+
+	std::clock_t start;
+    double duration;
+
+    start = std::clock();
+
+	parseGraph();
+    
+    duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+    cout<<"duration: "<< duration <<'\n';
+
+	vector<int> v = diameterPath;
+	vector<int>::iterator it;
+	cout << "Diameter\n" << v.size() << endl;
+	cout << "start -> ";
+	for(it=v.begin() ; it!=v.end() ; ++it) {
+		cout << *it << " -> ";
+	}
+	cout << "finish" << endl;
+
+	v = radiusPath;
+	cout << "Radius\n" << v.size() << endl;
+	cout << "start -> ";
+	for(it=v.begin() ; it!=v.end() ; ++it) {
+		cout << *it << " -> ";
+	}
+	cout << "finish" << endl;
+
+	for(int i=0 ; i<total ; i++){
+		cout << i << " betweenness centrality: " << allNodes[i].btnCen << endl;
+	}
+
+	return 0;
 }
 
-graph::graph(int n , float p) {
-
-	total = n;
-
-	/* 
-	assign btnCen to 0 while creating
-	 */
-	 
-	// Code for generating graph
-
-	//array of struct graph
-	allNodes = new node[n];
-
-	//Generates random graph, maybe connected or unconnected
-	for(int i=0;i<n-1;i++)
-	{
-		for(int j=i+1;j<n;j++)
-		{
-			allNodes[i].nodeNumber=i;
-			double r=randomnumber();
-			if(r<p)
-			{
-				allNodes[i].links.push_back(j);
-			}
-
-		}
-		
-	}
-
-	bool arr[n];
-	vector <int> v;
-	for(int i=0;i<n;i++)
-	{
-		arr[i]=true;
-	}
-
-	for(int i=0;i<n;i++)
-	{
-		for(int j=0;j<allNodes[i].links.size();j++)
-		{
-			
-			if(arr[allNodes[i].links[j]]==false)
-			{
-				arr[i]=false;
-			}
-			arr[allNodes[i].links[j]]=false;
-		}
-		
-	}
-	
-	for(int i=0;i<n;i++)
-	{
-		if(arr[i])
-		{
-			v.push_back(i);
-		}
-	}
-	if(v.size()!=1)
-	{
-		for(int i=1;i<v.size();i++)
-		{
-			allNodes[0].links.push_back(v[i]);
-			arr[v[i]]=-1;
-
-		}
-	}
-	for(int i=0;i<n;i++)
-	{
-		for(int j=0;j<allNodes[i].links.size();j++)
-		{
-			int k=allNodes[i].links[j];
-			if(k>i)
-			{
-				allNodes[k].links.push_back(i);
-			}
-
-		}
-		
-	}
-	for(int i=0;i<n;i++)
-	{
-		cout<<i<<"->";
-		for(int j=0;j<allNodes[i].links.size();j++)
-		{
-			cout<<allNodes[i].links[j]<<" ";
-		}
-		cout<<"\n";
-	}
-
-}
-
-
-vector< vector<int> > graph::shortestPathBetween(int a,int b){
+vector< vector<int> > shortestPathBetween(int a,int b){
 	possiblePaths.clear(); // clearing the vector for re-use
 	
 	vector<int> startPath; // starting path for the shortest path i.e. = [a]
@@ -143,7 +142,7 @@ vector< vector<int> > graph::shortestPathBetween(int a,int b){
 	return allPossibleShortestPaths;
 }
 
-void graph::shortestPathProcess(vector<int> pathTillNow,int b ){
+void shortestPathProcess(vector<int> pathTillNow,int b ){
 
 	vector<int> nextLinks = allNodes[pathTillNow.back()].links; // links of last element in the 'pathTillNow'
 
@@ -178,7 +177,7 @@ void graph::shortestPathProcess(vector<int> pathTillNow,int b ){
 	}
 }
 
-vector<int> graph::parseShortestPaths(int x, int y) {
+vector<int> parseShortestPaths(int x, int y) {
 
 	vector< vector<int> > allShortestPaths = shortestPathBetween(x,y); // all shortest path between x and y
 	
@@ -198,7 +197,7 @@ vector<int> graph::parseShortestPaths(int x, int y) {
 	return allShortestPaths[0]; // returning only 1 shortest path
 }
 
-void graph::parseGraph() {
+void parseGraph() {
 
 	vector<int> s_path; // shortest path under observation
 	int sp_size; // size of the shortest path under observation
