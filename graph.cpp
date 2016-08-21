@@ -20,7 +20,7 @@ double randomnumber()
 graph::graph(int n , float p) {
 
 	total = n;
-
+	distanceForNodes = new int[n];
 	/* 
 	assign btnCen to 0 while creating
 	 */
@@ -110,6 +110,12 @@ graph::graph(int n , float p) {
 
 
 vector< vector<int> > graph::shortestPathBetween(int a,int b){
+
+	for(int i=0 ; i<total ; i++) {
+		distanceForNodes[i] = total;
+	}
+
+	shortestLength = total;
 	possiblePaths.clear(); // clearing the vector for re-use
 	
 	vector<int> startPath; // starting path for the shortest path i.e. = [a]
@@ -145,36 +151,42 @@ vector< vector<int> > graph::shortestPathBetween(int a,int b){
 
 void graph::shortestPathProcess(vector<int> pathTillNow,int b ){
 
-	vector<int> nextLinks = allNodes[pathTillNow.back()].links; // links of last element in the 'pathTillNow'
+	int lastNode = pathTillNow.back();
+	int pathSize = pathTillNow.size();
+	vector<int> nextLinks = allNodes[lastNode].links; // links of last element in the 'pathTillNow'
 
 	vector<int>::iterator begOfNextLinks = nextLinks.begin(); // beginning of 'nextLinks'
 	vector<int>::iterator endOfNextLinks = nextLinks.end(); // end of 'nextLinks'
 
-	if(find(begOfNextLinks,endOfNextLinks,b) != endOfNextLinks) { 
-		// if the 'nextLinks' contain 'b' , which means destination is reached
-		pathTillNow.push_back(b);
-		possiblePaths.push_back(pathTillNow);
+	if(distanceForNodes[lastNode] > pathSize){
+		distanceForNodes[lastNode] = pathSize;
+		if(find(begOfNextLinks,endOfNextLinks,b) != endOfNextLinks) { 
+			// if the 'nextLinks' contain 'b' , which means destination is reached
+			pathTillNow.push_back(b);
+			possiblePaths.push_back(pathTillNow);
+			if(pathSize < shortestLength) shortestLength = pathSize;
 
-	} else { // if the 'nextLinks' doesn't contain 'b'
+		} else if(pathSize < shortestLength){ // if the 'nextLinks' doesn't contain 'b'
 
-		vector<int>::iterator begOfPathVar = pathTillNow.begin(); // beginning of 'pathTillNow'
-		vector<int>::iterator endOfPathVar = pathTillNow.end(); // end of 'pathTillNow'
+			vector<int>::iterator begOfPathVar = pathTillNow.begin(); // beginning of 'pathTillNow'
+			vector<int>::iterator endOfPathVar = pathTillNow.end(); // end of 'pathTillNow'
 
-		vector<int> v; // dummy vector to pass to next process
-		vector<int>::iterator it; // for parsing through 'nextLinks'
+			vector<int> v; // dummy vector to pass to next process
+			vector<int>::iterator it; // for parsing through 'nextLinks'
 
-		for(it = nextLinks.begin() ; it!=nextLinks.end() ; ++it) {
-			if(find(begOfPathVar,endOfPathVar,*it) == endOfPathVar){ // if *it doesnt lead to a cycle
-				v = pathTillNow;
-				v.push_back(*it); // updates the 'pathTillNow'
-				shortestPathProcess(v,b);
-			}
-			/*
-			else {
-				node *it from 'nextLinks' is present in 'pathTillNow' , which would lead to a cycle
-			}
-			*/
-		}	
+			for(it = nextLinks.begin() ; it!=nextLinks.end() ; ++it) {
+				if(find(begOfPathVar,endOfPathVar,*it) == endOfPathVar){ // if *it doesnt lead to a cycle
+					v = pathTillNow;
+					v.push_back(*it); // updates the 'pathTillNow'
+					shortestPathProcess(v,b);
+				}
+				/*
+				else {
+					node *it from 'nextLinks' is present in 'pathTillNow' , which would lead to a cycle
+				}
+				*/
+			}	
+		}
 	}
 }
 
@@ -189,10 +201,13 @@ vector<int> graph::parseShortestPaths(int x, int y) {
 	for(int i=0 ; i<totalPaths ; i++) {
 		v = allShortestPaths[i];
 		pathLength = v.size()-1;
+		//cout << v[0] << " " ;
 		for(int j=1 ; j<pathLength ; j++) { // (1 to size-2) eliminates first and last element in shortest path
 			// updating the betweenness centrality of all the nodes on the shortest path
 			allNodes[v[j]].btnCen++;
+			//cout << v[j] << " ";
 		}
+		//cout << v[pathLength] << endl;
 	}
 
 	return allShortestPaths[0]; // returning only 1 shortest path
@@ -217,11 +232,11 @@ void graph::parseGraph() {
 		longestForVertex.clear();
 		j=0;
 
-		while(j<i){ // comparing with all the nodes before i
+		while(j<i){ 
 			s_path = shortestPathBetween(i,j)[0];
 			sp_size = s_path.size();
 			
-			if(sp_size > longestPathLength) { // check for the longest path in the shortest paths of i
+			if(sp_size > longestPathLength) {
 				longestForVertex = s_path;
 				longestPathLength = sp_size;
 			}
@@ -252,4 +267,6 @@ void graph::parseGraph() {
 			radiusPath = longestForVertex;
 		}
 	}
+	radius --;
+	diameter --;
 }

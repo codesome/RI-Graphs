@@ -2,32 +2,34 @@
 using namespace std;
 
 #include "graph.h"
+int main(int argc, char const *argv[]) {
 
-int main() {
-	
-	graph g(100,0.5);
+	if(argc == 3){
+		graph g(atoi(argv[1]),atof(argv[2]));
 
-	g.parseGraph();
-    
-	vector<int> v = g.diameterPath;
-	vector<int>::iterator it;
-	cout << "Diameter\n" << v.size() << endl;
-	cout << "start -> ";
-	for(it=v.begin() ; it!=v.end() ; ++it) {
-		cout << *it << " -> ";
-	}
-	cout << "finish" << endl;
+		g.parseGraph();
+	    
+		vector<int> v = g.diameterPath;
+		cout << "\nDiameter\nLength: " << g.diameter << endl;
+		cout << "Path: ";
+		for(int i=0 ; i<g.diameter ; ++i) {
+			cout << v[i] << "---";
+		}
+		cout << v.back() << endl << endl;
 
-	v = g.radiusPath;
-	cout << "Radius\n" << v.size() << endl;
-	cout << "start -> ";
-	for(it=v.begin() ; it!=v.end() ; ++it) {
-		cout << *it << " -> ";
-	}
-	cout << "finish" << endl;
+		v = g.radiusPath;
+		cout << "\nRadius\nLength: " << g.radius << endl;
+		cout << "Path: ";
+		for(int i=0 ; i<g.radius ; ++i) {
+			cout << v[i] << "---";
+		}
+		cout << v.back() << endl << endl;
 
-	for(int i=0 ; i<g.total ; i++){
-		cout << i << " betweenness centrality: " << g.allNodes[i].btnCen << endl;
+		for(int i=0 ; i<g.total ; i++){
+			cout << i << " betweenness centrality: " << g.allNodes[i].btnCen << endl;
+		}
+	} else {
+		cout << "Invalid number of arguments" << endl;
 	}
 	
 	return 0;
