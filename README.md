@@ -4,7 +4,7 @@
 
 ### Compile using C++11
 ```bash
-$ g++ graph.cpp index.cpp -std=c++11 -o graph
+$ g++ index.cpp -std=c++11 -o graph
 ```
 
 ### Execute
@@ -16,7 +16,7 @@ $ ./graph no_of_nodes probablity_for_an_edge
 ### Example
 
 ```bash
-$ g++ index.cpp graph.cpp -std=c++11 -o graph
+$ g++ index.cpp -std=c++11 -o graph
 $ ./graph 10 0.3
 Graph:
 0->1
