@@ -96,6 +96,7 @@ graph::graph(int n , float p) {
 		}
 		
 	}
+	cout << "Graph:" << endl;
 	for(int i=0;i<n;i++)
 	{
 		cout<<i<<"->";
@@ -158,7 +159,7 @@ void graph::shortestPathProcess(vector<int> pathTillNow,int b ){
 	vector<int>::iterator begOfNextLinks = nextLinks.begin(); // beginning of 'nextLinks'
 	vector<int>::iterator endOfNextLinks = nextLinks.end(); // end of 'nextLinks'
 
-	if(distanceForNodes[lastNode] > pathSize){
+	if(distanceForNodes[lastNode] >= pathSize){
 		distanceForNodes[lastNode] = pathSize;
 		if(find(begOfNextLinks,endOfNextLinks,b) != endOfNextLinks) { 
 			// if the 'nextLinks' contain 'b' , which means destination is reached
@@ -201,13 +202,13 @@ vector<int> graph::parseShortestPaths(int x, int y) {
 	for(int i=0 ; i<totalPaths ; i++) {
 		v = allShortestPaths[i];
 		pathLength = v.size()-1;
-		//cout << v[0] << " " ;
+		cout << v[0] << " " ;
 		for(int j=1 ; j<pathLength ; j++) { // (1 to size-2) eliminates first and last element in shortest path
 			// updating the betweenness centrality of all the nodes on the shortest path
 			allNodes[v[j]].btnCen++;
-			//cout << v[j] << " ";
+			cout << v[j] << " ";
 		}
-		//cout << v[pathLength] << endl;
+		cout << v[pathLength] << endl;
 	}
 
 	return allShortestPaths[0]; // returning only 1 shortest path
@@ -227,6 +228,7 @@ void graph::parseGraph() {
 	
 	int j;
 	radius = total; // assigning it to maximum
+	cout << "\nShortest Paths:\n";
 	for(int i=0 ; i<total ; i++) {
 		longestPathLength = 0;
 		longestForVertex.clear();
@@ -267,6 +269,7 @@ void graph::parseGraph() {
 			radiusPath = longestForVertex;
 		}
 	}
-	radius --;
-	diameter --;
+	cout << endl;
+	radius--;
+	diameter--;
 }

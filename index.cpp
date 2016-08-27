@@ -8,7 +8,7 @@ int main(int argc, char const *argv[]) {
 		graph g(atoi(argv[1]),atof(argv[2]));
 
 		g.parseGraph();
-	    
+
 		vector<int> v = g.diameterPath;
 		cout << "\nDiameter\nLength: " << g.diameter << endl;
 		cout << "Path: ";
@@ -19,18 +19,20 @@ int main(int argc, char const *argv[]) {
 
 		v = g.radiusPath;
 		cout << "\nRadius\nLength: " << g.radius << endl;
-		cout << "Path: ";
+		cout << "Center: " << v[0];
+		cout << "\nPath: ";
 		for(int i=0 ; i<g.radius ; ++i) {
 			cout << v[i] << "---";
 		}
 		cout << v.back() << endl << endl;
 
+		cout <<  "Betweenness Centrality:\n";
 		for(int i=0 ; i<g.total ; i++){
-			cout << i << " betweenness centrality: " << g.allNodes[i].btnCen << endl;
+			cout << i << ": " << g.allNodes[i].btnCen << endl;
 		}
 	} else {
 		cout << "Invalid number of arguments" << endl;
 	}
-	
+
 	return 0;
 }
